@@ -1,10 +1,11 @@
 #!/usr/bin/env python
 # Python3
 
+import PIL
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.common.action_chains import ActionChains
-from selenium.webdriver.support import expected_conditions as EC
+# from selenium.webdriver.common.action_chains import ActionChains
+# from selenium.webdriver.support import expected_conditions as EC
 
 liepinurl = "https://www.liepin.com/"
 
@@ -22,27 +23,35 @@ try:
     brower = webdriver.Firefox(firefox_options=brower_options)
     brower.get(liepinurl)
 
-    gotologin = brower.find_element_by_xpath(
-        u"//a[@title = '登录猎聘网' and @data-selector = 'switchLogin']")
-    print(gotologin)
-    ActionChains(brower).click(gotologin).perform()
-    account_input = brower.find_element_by_xpath("//input[@name = 'user_login']")
+    brower.find_element_by_xpath(
+        u"//a[@title = '登录猎聘网' and @data-selector = 'switchLogin']").click()
+    # ActionChains(brower).click(gotologin).perform()
+    account_input = brower.find_element_by_xpath(
+        "//input[@name = 'user_login']")
     passwd_input = brower.find_element_by_xpath(
         "//input[@data-nick = 'login_pwd']")
-    login_button = brower.find_element_by_xpath("//input[@value = '登 录' and @type = 'submit']")
-    print(account_input)
-    print(passwd_input)
-    ActionChains(brower).move_to_element(account_input).click().perform()
+    login_button = brower.find_element_by_xpath(
+        "//input[@value = '登 录' and @type = 'submit']")
+    # ActionChains(brower).move_to_element(account_input).click().perform()
     account_input.clear()
-    ActionChains(brower).send_keys(account).perform()
-
-    ActionChains(brower).move_to_element(passwd_input).click().perform()
+    # ActionChains(brower).send_keys(account).perform()
+    account_input.send_keys(account)
+    # ActionChains(brower).move_to_element(passwd_input).click().perform()
     passwd_input.clear()
-    ActionChains(brower).send_keys(passwd).perform()
+    # ActionChains(brower).send_keys(passwd).perform()
+    passwd_input.send_keys(passwd)
     # account_input.send_keys(account)
     # passwd_input.send_keys(passwd)
     # login_button.click()
-    ActionChains(brower).click(login_button).perform()
+    # ActionChains(brower).click(login_button).perform()
+    login_button.click()
+    verify_code_input = brower.find_element_by_xpath(
+        "//input[@name = 'verifycode']")
+    verify_image = brower.find_element_by_xpath("//img[@class = 'very-image']")
+    if verify_code_input.is_displayed():
+        print("verify code input is displayed")
+        verify_code_input.send_keys("abcd")
+    login_button.click()
     input("Press any key to continue...")
 except Exception as e:
     print(e)
