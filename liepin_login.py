@@ -24,25 +24,16 @@ try:
     brower.get(liepinurl)
     brower.find_element_by_xpath(
         u"//a[@title = '登录猎聘网' and @data-selector = 'switchLogin']").click()
-    # ActionChains(brower).click(gotologin).perform()
     account_input = brower.find_element_by_xpath(
         "//input[@name = 'user_login']")
     passwd_input = brower.find_element_by_xpath(
         "//input[@data-nick = 'login_pwd']")
     login_button = brower.find_element_by_xpath(
         "//input[@value = '登 录' and @type = 'submit']")
-    # ActionChains(brower).move_to_element(account_input).click().perform()
     account_input.clear()
-    # ActionChains(brower).send_keys(account).perform()
     account_input.send_keys(account)
-    # ActionChains(brower).move_to_element(passwd_input).click().perform()
     passwd_input.clear()
-    # ActionChains(brower).send_keys(passwd).perform()
     passwd_input.send_keys(passwd)
-    # account_input.send_keys(account)
-    # passwd_input.send_keys(passwd)
-    # login_button.click()
-    # ActionChains(brower).click(login_button).perform()
     print("输入的密码为：" + passwd_input.get_attribute("value"))
     login_button.click()
     if EC.title_is("我的首页_猎聘网:Liepin.com")(brower):

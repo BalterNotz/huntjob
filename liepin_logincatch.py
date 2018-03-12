@@ -3,13 +3,13 @@
 # Python3
 
 from selenium import webdriver
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.remote.webelement import WebElement
-from selenium.webdriver.common.action_chains import ActionChains
-from selenium.webdriver.support.wait import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException
+from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.common.by import By
+from selenium.webdriver.remote.webelement import WebElement
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support.wait import WebDriverWait
 
 liepinurl = "https://www.liepin.com/"
 seach_str = u"Python"
@@ -40,7 +40,8 @@ try:
     passwd_input.send_keys(passwd)
     login_button.click()
 
-    seach_key = brower.find_element_by_xpath("//input[@data-selector = 'key']")
+    seach_key = WebDriverWait(brower, 5, 0.1).until(
+        EC.presence_of_element_located((By.XPATH, "//input[@data-selector = 'key']")))
     seach_key.send_keys(seach_str)
 
     print(brower.current_url)
@@ -56,7 +57,7 @@ try:
     print(brower.window_handles)
 
     change_city = WebDriverWait(brower, 5, 0.1).until(EC.presence_of_element_located((
-            By.XPATH, "//div[@class = 'search-bar']//div[@class = 'show-text']")))
+        By.XPATH, "//div[@class = 'search-bar']//div[@class = 'show-text']")))
     print(change_city.text)
     if "深圳" != change_city.text:
         change_city = change_city.find_element_by_xpath("../span/em")
@@ -76,14 +77,20 @@ try:
         # 处理招聘信息详情
         for job in jobs:
             assert isinstance(job, WebElement)
+            print(job.text)
             try:
-                print(job.find_element_by_tag_name("a").text)
-                job_url = job.find_element_by_tag_name(
-                    "a").get_attribute("href")
-                print(job_url)
+                if job.find_element_by_xpath("./i/b").text == "猎":
+                    print("猎头职位")
+                    continue
+                else:
+                    job_info = job.find_element_by_xpath("./div/div[1]")
+                    if "深圳" not in job_info.find_element_by_xpath("./p[1]/span[2]").text:
+                        print("不在深圳")
+                        continue
+                    company_info = job.find_element_by_xpath("./div/div[2]")
             except NoSuchElementException as e:
                 print(e)
-
+            input()
         next_page = WebDriverWait(brower, 5, 0.1).until(EC.presence_of_element_located((
             By.XPATH, "//div[@class = 'pager']/div[@class = 'pagerbar']/a[text() = '下一页']")))
         if next_page.get_attribute("class") != "disabled":
