@@ -12,29 +12,60 @@ from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException
 
 liepinurl = "https://www.liepin.com/"
-seach_str = u"Python爬虫"
+seach_str = u"Python"
 counter = 0
+
+with open(".liepinpasswd") as loginfile:
+    account = loginfile.readline().split(
+        "=")[1].strip().lstrip("\"").rstrip("\"")
+    passwd = loginfile.readline().split(
+        "=")[1].strip().lstrip("\"").rstrip("\"")
 
 try:
     brower_options = webdriver.FirefoxOptions()
     # brower_options.set_headless()
     brower = webdriver.Firefox(firefox_options=brower_options)
     brower.get(liepinurl)
+    brower.find_element_by_xpath(
+        u"//a[@title = '登录猎聘网' and @data-selector = 'switchLogin']").click()
+    account_input = brower.find_element_by_xpath(
+        "//input[@name = 'user_login']")
+    passwd_input = brower.find_element_by_xpath(
+        "//input[@data-nick = 'login_pwd']")
+    login_button = brower.find_element_by_xpath(
+        "//input[@value = '登 录' and @type = 'submit']")
+    account_input.clear()
+    account_input.send_keys(account)
+    passwd_input.clear()
+    passwd_input.send_keys(passwd)
+    login_button.click()
 
-    change_city = brower.find_element_by_xpath("//a[@class = 'change-city']/b")
-    if "深圳" != change_city.text:
-        change_city.click()
-        more_city = brower.find_element_by_xpath(
-            "//a[@href = 'https://www.liepin.com/citylist/']")
-        more_city.click()
-        sz_city = brower.find_element_by_xpath("//a[@href = '/sz/']")
-        sz_city.click()
-
-    seach_key = brower.find_element_by_xpath("//input[@name = 'key']")
+    seach_key = brower.find_element_by_xpath("//input[@data-selector = 'key']")
     seach_key.send_keys(seach_str)
-    seach_btn = brower.find_element_by_xpath(
-        "//button[@class = 'search-btn float-right' and @type = 'submit']")
+
+    print(brower.current_url)
+    print(brower.current_window_handle)
+    print(brower.window_handles)
+
+    seach_btn = seach_key.find_element_by_xpath("../button")
     brower.execute_script("arguments[0].click();", seach_btn)
+    brower.switch_to_window(brower.window_handles[1])
+
+    print(brower.current_url)
+    print(brower.current_window_handle)
+    print(brower.window_handles)
+
+    change_city = WebDriverWait(brower, 5, 0.1).until(EC.presence_of_element_located((
+            By.XPATH, "//div[@class = 'search-bar']//div[@class = 'show-text']")))
+    print(change_city.text)
+    if "深圳" != change_city.text:
+        change_city = change_city.find_element_by_xpath("../span/em")
+        change_city.click()
+        sz_city = brower.find_element_by_xpath("//a[@data-code = '050090']")
+        sz_city.click()
+        city_ok_btn = brower.find_element_by_xpath("//a[@data-name = 'ok']")
+        city_ok_btn.click()
+
     while True:
         jobs = WebDriverWait(brower, 5, 0.1).until(EC.presence_of_all_elements_located((
             By.XPATH, "//div[@class = 'job-content']//ul[@class = 'sojob-list']/li")))
