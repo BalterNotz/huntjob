@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+#coding=utf-8
 # Python3
 
 from selenium import webdriver
@@ -27,32 +28,30 @@ try:
         sz_city.click()
 
     seach_key = brower.find_element_by_xpath("//input[@name = 'key']")
-    seach_key.send_keys("Python")
+    seach_key.send_keys(u"爬虫")
     seach_btn = brower.find_element_by_xpath(
         "//button[@class = 'search-btn float-right' and @type = 'submit']")
-    seach_btn.click()
+    brower.execute_script("arguments[0].click();", seach_btn)
+    # seach_btn.click()
     while True:
         jobs = WebDriverWait(brower, 5, 0.1).until(EC.presence_of_all_elements_located((
             By.XPATH, "//div[@class = 'job-content']/div[@class = 'sojob-result ']/ul[@class = 'sojob-list']/li")))
-        # jobs = brower.find_element_by_xpath(
-        #     "//div[@class = 'job-content']/div[@class = 'sojob-result ']/ul[@class = 'sojob-list']")
-        # jobs = jobs.find_elements_by_tag_name("li")
-        for job in jobs:
-            assert isinstance(job, WebElement)
-            print(job.text)
+        current_page = WebDriverWait(brower, 5, 0.1).until(EC.presence_of_element_located((
+            By.XPATH, "//div[@class = 'pager']/div[@class = 'pagerbar']/a[@class = 'current']")))
+        print("current_page is: %s" % current_page.text)
+        counter = counter + 1
+
         next_page = WebDriverWait(brower, 5, 0.1).until(EC.presence_of_element_located((
             By.XPATH, "//div[@class = 'pager']/div[@class = 'pagerbar']/a[text() = '下一页']")))
-        # next_page = brower.find_element_by_xpath(
-            # "//div[@class = 'pager']/div[@class = 'pagerbar']/a[text() = '下一页']")
-        # brower.execute_script("document.getElementsByClassName('comment-user')[0].click()")
-        # next_page.click()
-        counter = counter + 1
-        if input() == "b":
+        if next_page.get_attribute("class") != "disabled":
+            brower.execute_script("arguments[0].click();", next_page)
+        else:
             break
-        brower.execute_script("arguments[0].click();", next_page)
+        current_page = WebDriverWait(brower, 5, 0.1).until(EC.presence_of_element_located((
+            By.XPATH, "//div[@class = 'pager']/div[@class = 'pagerbar']/a[@class = 'current' and text() = '" + str(counter + 1) + "']")))
     input("Press any key to continue...")
 except Exception as e:
     print(e)
 finally:
     print("counter: %d" % counter)
-    brower.close()
+    brower.quit()
